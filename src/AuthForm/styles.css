@@ -1,0 +1,43 @@
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  max-width: 400px;
+  box-shadow: 0px 1px 4px #d3d3d3;
+  border-radius: 15px;
+  padding: 40px
+}
+
+.emoji {
+  margin: 0;
+  margin-top: -86px;
+  margin-bottom: 5px;
+  font-size: 72px;
+}
+
+.title {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 500;
+}
+
+.subtitle {
+  max-width: 330px;
+  font-size: 14px;
+  color: #919191;
+  margin-top: 4px;
+  margin-bottom: 20px;
+  line-height: 20px;
+}
+
+.submit {
+  height: 52px;
+  width: 180px;
+  border-radius: 5px;
+  background-color: #ff6342;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  margin-top: 22px;
+}

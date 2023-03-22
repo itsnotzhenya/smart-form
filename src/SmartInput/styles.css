@@ -1,0 +1,20 @@
+.wrapper {
+  margin-bottom: 20px;
+}
+
+.input {
+  width: 300px;
+  height: 52px;
+  border-radius: 5px;
+  border: 1px solid #ff63426e;
+  padding-left: 20px;
+  font-size: 16px;
+}
+
+.input::placeholder {
+  color: #aaaaaa;
+}
+
+.input:focus {
+  outline-color: #ff6342;
+}
