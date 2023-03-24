@@ -18,3 +18,9 @@
 .input:focus {
   outline-color: #ff6342;
 }
+.error {
+  text-align: left;
+  margin: 2px 0 0 4px;
+  font-size: 14px;
+  color: rgb(212, 60, 51);
+}
