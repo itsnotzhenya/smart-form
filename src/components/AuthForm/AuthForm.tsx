@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 import { SmartForm } from '../SmartForm';
 import './styles.css';
 
@@ -14,55 +14,63 @@ interface FieldConfig {
 export const AuthForm = () => {
   const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
   const [isSubmitEnabled, setIsSubmitEnabled] = useState<boolean>(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [emailIsValid, setEmailIsValid] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
 
-  const fields: FieldConfig[] = [
-    {
-      id: 'first_name',
-      type: 'inputText',
-      defaultValue: 'Ivan',
-      placeholder: 'Введите имя',
-    },
-    {
-      id: 'last_name',
-      type: 'inputText',
-      defaultValue: 'Ivanov',
-      placeholder: 'Введите фамилию ',
-    },
-    {
-      id: 'email',
-      type: 'inputEmail',
-      placeholder: 'Введите адрес эл. почты',
-      required: true,
-    },
-    {
-      id: 'password',
-      type: 'inputPassword',
-      placeholder: 'Введите пароль',
-      required: true,
-    },
-  ];
+  const fields: FieldConfig[] = useMemo(
+    () => [
+      {
+        id: 'first_name',
+        type: 'inputText',
+        defaultValue: 'Ivan',
+        placeholder: 'Введите имя',
+      },
+      {
+        id: 'last_name',
+        type: 'inputText',
+        defaultValue: 'Ivanov',
+        placeholder: 'Введите фамилию ',
+      },
+      {
+        id: 'email',
+        type: 'inputEmail',
+        placeholder: 'Введите адрес эл. почты',
+        required: true,
+      },
+      {
+        id: 'password',
+        type: 'inputPassword',
+        placeholder: 'Введите пароль',
+        required: true,
+      },
+    ],
+    []
+  );
 
-  const handleChange = (newValues: { [key: string]: string }) => {
-    setFieldValues(newValues);
-
-    const isFormValid = fields.every(
-      (field) => !field.required || !!newValues[field.id]
+  const isFormValid = (
+    config: FieldConfig[],
+    values: { [key: string]: string }
+  ) => {
+    return config.every(
+      (field: FieldConfig) => !field.required || !!values[field.id]
     );
-
-    const emailValid = isEmailValid(fieldValues.email);
-    setIsSubmitEnabled(isFormValid && emailValid);
   };
 
   const isEmailValid = (email: string) => {
-    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-      setEmailIsValid(true);
-      return true;
-    } else {
-      setEmailIsValid(false);
-      return false;
+    const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    return re.test(email);
+  };
+
+  useEffect(() => {
+    if (!!fieldValues['email']) {
+      setEmailIsValid(isEmailValid(fieldValues['email']));
     }
+
+    setIsSubmitEnabled(isFormValid(fields, fieldValues) && emailIsValid);
+  }, [fieldValues, emailIsValid, fields]);
+
+  const handleChange = (newValues: { [key: string]: string }) => {
+    setFieldValues(newValues);
   };
 
   const handleSubmit = useCallback(() => {
@@ -89,7 +97,9 @@ export const AuthForm = () => {
           <SmartForm
             config={fields}
             onChange={handleChange}
-            showEmailError={emailIsValid}
+            error={
+              !emailIsValid ? 'Упс, некорректный адрес эл. почты' : undefined
+            }
           />
           <button
             onClick={handleSubmit}

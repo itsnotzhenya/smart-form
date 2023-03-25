@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 import './styles.css';
 
-interface FieldConfig {
+export interface FieldConfig {
   id: string;
   type: 'inputText' | 'inputEmail' | 'inputPassword';
   label?: string;
@@ -13,13 +13,13 @@ interface FieldConfig {
 interface Props {
   config: FieldConfig[];
   onChange: (values: { [key: string]: string }) => void;
-  showEmailError?: boolean;
+  error?: string;
 }
 
 export const SmartForm: React.FC<Props> = ({
   config,
   onChange,
-  showEmailError,
+  error,
 }: Props) => {
   const [formValue, setFormValue] = useState<{ [key: string]: string }>(() => {
     const initialValues = config.reduce((acc, field) => {
@@ -33,7 +33,6 @@ export const SmartForm: React.FC<Props> = ({
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>, id: string) => {
     const newValues = { ...formValue, [id]: e.target.value };
-    console.log({ value: e.target.value, newValues });
     setFormValue(newValues);
     onChange(newValues);
   };
@@ -60,10 +59,7 @@ export const SmartForm: React.FC<Props> = ({
           required={required}
           onChange={(e) => handleChange(e, id)}
         />
-        {showEmailError && field.id === 'email' && (
-          <p className="error">Упс, некорректный адрес эл. почты </p>
-        )}
-        {}
+        {error && field.id === 'email' && <p className="error">{error}</p>}
       </div>
     );
   };
