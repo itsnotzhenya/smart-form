@@ -12,12 +12,7 @@ interface FieldConfig {
 }
 
 export const AuthForm = () => {
-  const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
-  const [isSubmitEnabled, setIsSubmitEnabled] = useState<boolean>(false);
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
-
-  const fields: FieldConfig[] = useMemo(
+  const fieldsConfig: FieldConfig[] = useMemo(
     () => [
       {
         id: 'first_name',
@@ -47,6 +42,21 @@ export const AuthForm = () => {
     []
   );
 
+  const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>(
+    () => {
+      const initialValues = fieldsConfig.reduce((acc, field) => {
+        if (field.defaultValue) {
+          acc[field.id] = field.defaultValue;
+        }
+        return acc;
+      }, {} as { [key: string]: string });
+      return initialValues;
+    }
+  );
+  const [isSubmitEnabled, setIsSubmitEnabled] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
+
   const isFormValid = (
     config: FieldConfig[],
     values: { [key: string]: string }
@@ -66,8 +76,8 @@ export const AuthForm = () => {
       setEmailIsValid(isEmailValid(fieldValues['email']));
     }
 
-    setIsSubmitEnabled(isFormValid(fields, fieldValues) && emailIsValid);
-  }, [fieldValues, emailIsValid, fields]);
+    setIsSubmitEnabled(isFormValid(fieldsConfig, fieldValues) && emailIsValid);
+  }, [fieldValues, emailIsValid, fieldsConfig]);
 
   const handleChange = useCallback((id: string, newValue: string) => {
     setFieldValues((prevValues) => ({ ...prevValues, [id]: newValue }));
@@ -95,7 +105,7 @@ export const AuthForm = () => {
             Для доступа к личному кабинету вашей комании авторизуйтесь на сайте
           </p>
           <SmartForm
-            config={fields}
+            config={fieldsConfig}
             onChange={handleChange}
             error={
               !emailIsValid ? 'Упс, некорректный адрес эл. почты' : undefined
