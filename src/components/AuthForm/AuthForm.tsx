@@ -69,9 +69,9 @@ export const AuthForm = () => {
     setIsSubmitEnabled(isFormValid(fields, fieldValues) && emailIsValid);
   }, [fieldValues, emailIsValid, fields]);
 
-  const handleChange = (newValues: { [key: string]: string }) => {
-    setFieldValues(newValues);
-  };
+  const handleChange = useCallback((id: string, newValue: string) => {
+    setFieldValues((prevValues) => ({ ...prevValues, [id]: newValue }));
+  }, []);
 
   const handleSubmit = useCallback(() => {
     console.log('Submitted values:', fieldValues);

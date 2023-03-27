@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, memo } from 'react';
 import './styles.css';
 
 export interface FieldConfig {
@@ -12,57 +12,44 @@ export interface FieldConfig {
 
 interface Props {
   config: FieldConfig[];
-  onChange: (values: { [key: string]: string }) => void;
+  onChange: (id: string, value: string) => void;
   error?: string;
 }
 
-export const SmartForm: React.FC<Props> = ({
-  config,
-  onChange,
-  error,
-}: Props) => {
-  const [formValue, setFormValue] = useState<{ [key: string]: string }>(() => {
-    const initialValues = config.reduce((acc, field) => {
-      if (field.defaultValue) {
-        acc[field.id] = field.defaultValue;
-      }
-      return acc;
-    }, {} as { [key: string]: string });
-    return initialValues;
-  });
+export const SmartForm: React.FC<Props> = memo(
+  ({ config, onChange, error }: Props) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>, id: string) => {
+      const newValue = e.target.value;
+      onChange(id, newValue);
+    };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>, id: string) => {
-    const newValues = { ...formValue, [id]: e.target.value };
-    setFormValue(newValues);
-    onChange(newValues);
-  };
+    const renderField = (field: FieldConfig) => {
+      const { id, type, label, placeholder, defaultValue, required } = field;
 
-  const renderField = (field: FieldConfig) => {
-    const { id, type, label, placeholder, defaultValue, required } = field;
+      const inputType = (type: 'inputText' | 'inputEmail' | 'inputPassword') =>
+        type === 'inputText'
+          ? 'text'
+          : type === 'inputEmail'
+          ? 'email'
+          : 'password';
 
-    const inputType = (type: 'inputText' | 'inputEmail' | 'inputPassword') =>
-      type === 'inputText'
-        ? 'text'
-        : type === 'inputEmail'
-        ? 'email'
-        : 'password';
+      return (
+        <div key={id} className="wrapper">
+          {label && <label htmlFor={id}>{label}</label>}
+          <input
+            id={id}
+            className="input"
+            type={inputType(type)}
+            defaultValue={defaultValue}
+            placeholder={placeholder || ''}
+            required={required}
+            onChange={(e) => handleChange(e, id)}
+          />
+          {error && field.id === 'email' && <p className="error">{error}</p>}
+        </div>
+      );
+    };
 
-    return (
-      <div key={id} className="wrapper">
-        {label && <label htmlFor={id}>{label}</label>}
-        <input
-          id={id}
-          className="input"
-          type={inputType(type)}
-          defaultValue={defaultValue}
-          placeholder={placeholder || ''}
-          required={required}
-          onChange={(e) => handleChange(e, id)}
-        />
-        {error && field.id === 'email' && <p className="error">{error}</p>}
-      </div>
-    );
-  };
-
-  return <form>{config.map(renderField)}</form>;
-};
+    return <form>{config.map(renderField)}</form>;
+  }
+);
